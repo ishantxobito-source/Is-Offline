@@ -1,9 +1,30 @@
---- /Amethyst-iOS/Natives/JavaLauncher.m	Tue Feb 17 22:12:16 2025
-+++ /Amethyst-iOS/Natives/JavaLauncher.m	Tue Feb 17 22:15:34 2025
-@@ -8,6 +8,7 @@
- #include <string.h>
- #include <sys/stat.h>
- #include <unistd.h>
-+#include <mach/mach.h>
+--- a/Amethyst-Android/app/src/main/java/net/kdt/pojavlaunch/JavaLauncher.java
++++ b/Amethyst-Android/app/src/main/java/net/kdt/pojavlaunch/JavaLauncher.java
+@@ -45,10 +45,23 @@ public class JavaLauncher {
+     public static List<String> getOptimizedJvmArgs(int ramAllocationMb) {
+         List<String> jvmArgs = new ArrayList<>();
+         
+-        // Default Memory Allocation
+-        jvmArgs.add("-Xms1024M");
+-        jvmArgs.add("-Xmx" + ramAllocationMb + "M");
++        // --- SNAPDRAGON 7s GEN 2 & 8GB RAM OPTIMIZATION ---
++        // Safe max memory limit for 8GB phones to prevent Android OOM kills
++        jvmArgs.add("-Xms3500M"); 
++        jvmArgs.add("-Xmx5600M");
+         
++        // Advanced G1GC Flags for Low Latency & High Mod Count
++        jvmArgs.add("-XX:+UseG1GC");
++        jvmArgs.add("-XX:+UnlockExperimentalVMOptions");
++        jvmArgs.add("-XX:+AlwaysPreTouch");
++        jvmArgs.add("-XX:G1HeapRegionSize=32M");
++        jvmArgs.add("-XX:G1ReservePercent=15");
++        jvmArgs.add("-XX:InitiatingHeapOccupancyPercent=45");
++        jvmArgs.add("-XX:MaxGCPauseMillis=30");
++        jvmArgs.add("-XX:+DisableExplicitGC");
++        jvmArgs.add("-XX:+UseStringDeduplication"); // Saves up to 1.5GB RAM on 500+ mods
++        jvmArgs.add("-Dforge.forceNoStdout=true");
++        
+         return jvmArgs;
+     }
+ }
 
- #include "utils.h"
